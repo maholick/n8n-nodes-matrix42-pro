@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-matrix42-pro",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Productivity", "Utility"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/maholick/n8n-nodes-matrix42-pro#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/maholick/n8n-nodes-matrix42-pro#trigger"
+			}
+		]
+	}
+}

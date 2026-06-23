@@ -1,0 +1,14 @@
+packages:
+  - .
+
+allowBuilds:
+  eslint-plugin-n8n-nodes-base: true
+  isolated-vm: true
+  unrs-resolver: true
+
+overrides:
+  axios: 1.13.2
+  cross-spawn: '>=7.0.5'
+  form-data: 4.0.5
+  js-yaml: '>=4.1.1'
+  micromatch: '>=4.0.8'

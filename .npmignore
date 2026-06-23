@@ -14,10 +14,9 @@ credentials/
 # Build and cache
 *.tsbuildinfo
 .eslintcache
-.eslintrc*
 .prettierrc*
 tsconfig.json
-tslint.json
+eslint.config.mjs
 
 # Documentation (keep README and LICENSE)
 CODE_OF_CONDUCT.md
