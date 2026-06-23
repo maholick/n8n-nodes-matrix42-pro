@@ -12,10 +12,14 @@ import {
 	extractResponseItems,
 	getDataCardId,
 	getMatrix42ApiSession,
+	getResourceLocatorValue,
 	matrix42ApiRequest,
 } from './GenericFunctions';
+import { matrix42Methods } from './LoadOptions';
 
 export class Matrix42ProTrigger implements INodeType {
+	methods = matrix42Methods;
+
 	description: INodeTypeDescription = {
 		displayName: 'Matrix42 Pro Trigger',
 		name: 'matrix42ProTrigger',
@@ -25,7 +29,12 @@ export class Matrix42ProTrigger implements INodeType {
 		},
 		group: ['trigger'],
 		version: 1,
-		usableAsTool: true,
+		usableAsTool: {
+			replacements: {
+				description:
+					'Polling trigger for Matrix42 Pro workflows. For AI agents, prefer Matrix42 Pro AI Tool for read-only searches and lookups.',
+			},
+		},
 		description: 'Start workflows when Matrix42 Pro data cards appear in a template query',
 		subtitle: '={{$parameter["templateCode"]}}',
 		defaults: {
@@ -44,10 +53,30 @@ export class Matrix42ProTrigger implements INodeType {
 			{
 				displayName: 'Template Code',
 				name: 'templateCode',
-				type: 'string',
-				default: '',
+				type: 'resourceLocator',
+				default: {
+					mode: 'list',
+					value: '',
+				},
 				required: true,
-				placeholder: 'incident',
+				modes: [
+					{
+						displayName: 'From List',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Select a template...',
+						typeOptions: {
+							searchListMethod: 'searchTemplates',
+							searchable: true,
+						},
+					},
+					{
+						displayName: 'By Code',
+						name: 'code',
+						type: 'string',
+						placeholder: 'incident',
+					},
+				],
 				description: 'Template code to monitor',
 			},
 			{
@@ -106,7 +135,7 @@ export class Matrix42ProTrigger implements INodeType {
 	};
 
 	async poll(this: IPollFunctions): Promise<INodeExecutionData[][] | null> {
-		const templateCode = this.getNodeParameter('templateCode') as string;
+		const templateCode = getResourceLocatorValue(this.getNodeParameter('templateCode'));
 		const options = this.getNodeParameter('options') as IDataObject;
 		const session = await getMatrix42ApiSession.call(this);
 		const staticData = this.getWorkflowStaticData('node') as IDataObject;

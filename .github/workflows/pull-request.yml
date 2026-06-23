@@ -30,8 +30,14 @@ jobs:
       - name: Run linter
         run: pnpm run lint
 
+      - name: Run tests
+        run: pnpm run test
+
       - name: Build project
         run: pnpm run build
 
       - name: Audit production dependencies
         run: pnpm audit --prod
+
+      - name: Check package contents
+        run: pnpm pack --dry-run

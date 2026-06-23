@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-matrix42-pro",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Matrix42 Pro community nodes for n8n",
 	"keywords": [
 		"n8n-community-node-package",
@@ -29,17 +29,21 @@
 	"packageManager": "pnpm@11.8.0",
 	"main": "dist/nodes/Matrix42Pro/Matrix42Pro.node.js",
 	"scripts": {
-		"build": "n8n-node build",
+		"build": "node -e \"const fs=require('fs'); for (const path of ['dist','.tsbuildinfo']) fs.rmSync(path,{recursive:true,force:true});\" && n8n-node build",
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
 		"format": "prettier nodes credentials --write",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"check": "pnpm build && pnpm lint && pnpm test && pnpm audit --prod && corepack pnpm pack --dry-run",
 		"release": "n8n-node release",
-		"prepublishOnly": "pnpm build && pnpm lint"
+		"prepublishOnly": "pnpm check"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"examples"
 	],
 	"n8n": {
 		"n8nNodesApiVersion": 1,
@@ -49,6 +53,7 @@
 		],
 		"nodes": [
 			"dist/nodes/Matrix42Pro/Matrix42Pro.node.js",
+			"dist/nodes/Matrix42Pro/Matrix42ProAiTool.node.js",
 			"dist/nodes/Matrix42Pro/Matrix42ProTrigger.node.js"
 		]
 	},
@@ -59,7 +64,8 @@
 		"n8n-workflow": "^2.16.0",
 		"prettier": "^3.8.4",
 		"release-it": "^20.2.0",
-		"typescript": "^5.9.3"
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.15"
 	},
 	"peerDependencies": {
 		"n8n-workflow": "*"

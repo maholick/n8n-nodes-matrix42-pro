@@ -76,6 +76,12 @@ jobs:
           steps.check_package_json.outputs.package_json_changed == 'true'
         run: pnpm run lint
 
+      - name: Run tests
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+          steps.check_package_json.outputs.package_json_changed == 'true'
+        run: pnpm run test
+
       - name: Build project
         if: |
           github.event_name == 'workflow_dispatch' ||

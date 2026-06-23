@@ -1,0 +1,178 @@
+{
+	"name": "Matrix42 Pro Human-Reviewed Ticket Update",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "b4d8f4a9-9bc5-4307-ae9c-2c177c0e5e81",
+			"name": "Manual Review Trigger",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 240]
+		},
+		{
+			"parameters": {
+				"assignments": {
+					"assignments": [
+						{
+							"id": "3568797e-14b0-4f46-8d33-c0e0f25f6bb1",
+							"name": "approved",
+							"type": "boolean",
+							"value": true
+						},
+						{
+							"id": "2a99402b-6074-45b4-bdb9-87744782d1cb",
+							"name": "dataCardId",
+							"type": "string",
+							"value": "12345"
+						},
+						{
+							"id": "20fc739d-04cc-4386-a077-9ef8e88b6ec1",
+							"name": "newStatusCode",
+							"type": "string",
+							"value": "02"
+						},
+						{
+							"id": "91b977bc-1ba9-430a-a4c3-167884f3d4bc",
+							"name": "reviewComment",
+							"type": "string",
+							"value": "Reviewed in n8n before updating Matrix42 Pro."
+						}
+					]
+				}
+			},
+			"id": "1b1b7eb8-bf54-494c-a20b-3d4b7c18543a",
+			"name": "Reviewed Update Payload",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3.4,
+			"position": [260, 240]
+		},
+		{
+			"parameters": {
+				"conditions": {
+					"options": {
+						"caseSensitive": true,
+						"leftValue": "",
+						"typeValidation": "strict"
+					},
+					"conditions": [
+						{
+							"id": "f0467d07-77c4-4365-8ba3-bdf1d463a673",
+							"leftValue": "={{ $json.approved }}",
+							"operator": {
+								"type": "boolean",
+								"operation": "true"
+							},
+							"rightValue": true
+						}
+					],
+					"combinator": "and"
+				}
+			},
+			"id": "efe2e268-a6c0-46f5-bd82-0ca59167bd89",
+			"name": "Approved?",
+			"type": "n8n-nodes-base.if",
+			"typeVersion": 2.2,
+			"position": [520, 240]
+		},
+		{
+			"parameters": {
+				"resource": "dataCard",
+				"operation": "update",
+				"templateCode": {
+					"__rl": true,
+					"mode": "code",
+					"value": "incident"
+				},
+				"dataCardId": "={{ $json.dataCardId }}",
+				"folderCode": {
+					"__rl": true,
+					"mode": "code",
+					"value": "incident_management"
+				},
+				"dataMode": "fields",
+				"fields": {
+					"field": [
+						{
+							"attributeCode": "status",
+							"valueType": "staticValue",
+							"code": "={{ $json.newStatusCode }}"
+						},
+						{
+							"attributeCode": "worklog",
+							"valueType": "worklog",
+							"value": "={{ $json.reviewComment }}"
+						}
+					]
+				},
+				"mutationOptions": {
+					"dataCards": true
+				}
+			},
+			"id": "1733af1a-1d3d-4e6c-bf35-635c18e8cf6d",
+			"name": "Update Ticket",
+			"type": "n8n-nodes-matrix42-pro.matrix42Pro",
+			"typeVersion": 1,
+			"position": [800, 160],
+			"credentials": {
+				"matrix42ProApi": {
+					"id": "",
+					"name": "Matrix42 Pro API"
+				}
+			}
+		},
+		{
+			"parameters": {},
+			"id": "39fb3dbd-d39c-4394-9cfd-0f7f91cc607c",
+			"name": "No Update",
+			"type": "n8n-nodes-base.noOp",
+			"typeVersion": 1,
+			"position": [800, 340]
+		}
+	],
+	"connections": {
+		"Manual Review Trigger": {
+			"main": [
+				[
+					{
+						"node": "Reviewed Update Payload",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Reviewed Update Payload": {
+			"main": [
+				[
+					{
+						"node": "Approved?",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Approved?": {
+			"main": [
+				[
+					{
+						"node": "Update Ticket",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "No Update",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"active": false
+}

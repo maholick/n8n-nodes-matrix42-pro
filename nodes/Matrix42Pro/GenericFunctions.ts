@@ -3,13 +3,15 @@ import type {
 	IExecuteFunctions,
 	IHttpRequestMethods,
 	IHttpRequestOptions,
+	ILoadOptionsFunctions,
 	INode,
 	INodeExecutionData,
+	INodeParameterResourceLocator,
 	IPollFunctions,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-export type Matrix42ApiContext = IExecuteFunctions | IPollFunctions;
+export type Matrix42ApiContext = IExecuteFunctions | ILoadOptionsFunctions | IPollFunctions;
 
 export interface Matrix42ApiSession {
 	baseUrl: string;
@@ -258,6 +260,14 @@ export function getDataCardId(card: IDataObject): string | undefined {
 	return String(rawId);
 }
 
+export function getResourceLocatorValue(value: unknown): string {
+	if (isResourceLocator(value)) {
+		return stringValue(value.value);
+	}
+
+	return stringValue(value);
+}
+
 export function encodePathSegment(value: string): string {
 	return value
 		.split('/')
@@ -309,7 +319,7 @@ function buildValueElement(row: IDataObject): IDataObject {
 		case 'staticValue':
 			return cleanDataObject({
 				value: row.value,
-				code: row.code,
+				code: row.code || row.codeManual,
 			}) as IDataObject;
 
 		default:
@@ -353,6 +363,10 @@ function stringValue(value: unknown): string {
 
 function isDataObject(value: unknown): value is IDataObject {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isResourceLocator(value: unknown): value is INodeParameterResourceLocator {
+	return isDataObject(value) && 'value' in value && 'mode' in value;
 }
 
 function toMatrix42OperationError(

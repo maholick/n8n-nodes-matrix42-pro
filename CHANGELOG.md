@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-23
+
+### Added
+
+- Added Vitest unit and operation tests for helpers, authentication, API errors, pagination, payload builders, attachment uploads, dynamic options, and AI-tool read-only behavior.
+- Added dynamic template, folder, attribute, file-attribute, and static-value loading from Matrix42 Pro REST API metadata.
+- Added the read-only `Matrix42 Pro AI Tool` node for n8n Tools Agent workflows.
+- Added example workflows for AI ticket search and human-reviewed ticket updates.
+- Added `test`, `test:watch`, and `check` scripts.
+
+### Changed
+
+- Refactored operation execution into testable internal modules shared by the full workflow node and tests.
+- Updated CI and `prepublishOnly` to run build, lint, tests, production audit, and pack dry-run.
+- Adjusted tool descriptions to steer AI-agent workflows toward the read-only AI Tool node.
+
 ## [0.2.0] - 2026-06-23
 
 ### Added

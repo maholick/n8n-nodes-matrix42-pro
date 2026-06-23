@@ -1,0 +1,104 @@
+{
+	"name": "Matrix42 Pro AI Ticket Search Assistant",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "b1ef57d0-3c07-4c2f-9ef0-e93a4704a0e1",
+			"name": "Chat Trigger",
+			"type": "@n8n/n8n-nodes-langchain.chatTrigger",
+			"typeVersion": 1,
+			"position": [0, 240]
+		},
+		{
+			"parameters": {
+				"agent": "toolsAgent",
+				"promptType": "auto",
+				"options": {
+					"systemMessage": "You are a Matrix42 Pro support assistant. Use Matrix42 Pro AI Tool for ticket lookups only. Ask for clarification before broad searches. Do not propose write actions unless a human-reviewed workflow will handle them."
+				}
+			},
+			"id": "46fd1f57-2032-499f-a13b-02a6c0ccf3f1",
+			"name": "AI Ticket Assistant",
+			"type": "@n8n/n8n-nodes-langchain.agent",
+			"typeVersion": 2,
+			"position": [360, 240]
+		},
+		{
+			"parameters": {
+				"model": "gpt-4.1-mini",
+				"options": {}
+			},
+			"id": "cc6f7955-52cc-4575-b029-f9e3fb72f02d",
+			"name": "OpenAI Chat Model",
+			"type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+			"typeVersion": 1,
+			"position": [240, 520]
+		},
+		{
+			"parameters": {
+				"operation": "searchDataCards",
+				"templateCode": {
+					"__rl": true,
+					"mode": "code",
+					"value": "incident"
+				},
+				"searchOptions": {
+					"filter": "={{ $fromAI('eql_filter', 'Matrix42 EQL filter for finding relevant tickets. Use attributes such as subject, status, priority, customer, support_group, or created.', 'string') }}",
+					"limit": 10,
+					"dataCards": false,
+					"selectedAttributes": "subject,status,priority,customer,support_group,created"
+				}
+			},
+			"id": "2c2fd6b1-e245-4b7c-a6db-3460fa6747bf",
+			"name": "Matrix42 Pro AI Tool",
+			"type": "n8n-nodes-matrix42-pro.matrix42ProAiTool",
+			"typeVersion": 1,
+			"position": [520, 520],
+			"credentials": {
+				"matrix42ProApi": {
+					"id": "",
+					"name": "Matrix42 Pro API"
+				}
+			}
+		}
+	],
+	"connections": {
+		"Chat Trigger": {
+			"main": [
+				[
+					{
+						"node": "AI Ticket Assistant",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"OpenAI Chat Model": {
+			"ai_languageModel": [
+				[
+					{
+						"node": "AI Ticket Assistant",
+						"type": "ai_languageModel",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Matrix42 Pro AI Tool": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Ticket Assistant",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"active": false
+}

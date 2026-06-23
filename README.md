@@ -9,9 +9,11 @@ This is an unofficial community integration. It is not affiliated with, endorsed
 ## What is included
 
 - `Matrix42 Pro`: action node for templates, data cards, attributes, attachments, and API echo checks.
+- `Matrix42 Pro AI Tool`: read-only node for n8n AI Agents to search data cards and inspect templates, cards, and attributes.
 - `Matrix42 Pro Trigger`: polling trigger for new matching data cards.
 - `Matrix42 Pro API`: credentials for local ESM users with External API permission.
-- Light and dark SVG icons, n8n codex metadata, current `@n8n/node-cli` build/lint/release scripts, and pnpm 11 workspace configuration.
+- Dynamic template, folder, attribute, file-attribute, and static-value selectors with manual code entry fallback.
+- Light and dark SVG icons, n8n codex metadata, current `@n8n/node-cli` build/lint/test/release scripts, and pnpm 11 workspace configuration.
 
 ## Requirements
 
@@ -46,6 +48,7 @@ For local development:
 corepack enable
 corepack pnpm install
 corepack pnpm build
+corepack pnpm test
 corepack pnpm dev
 ```
 
@@ -62,6 +65,18 @@ Create a `Matrix42 Pro API` credential with:
 | Allow Unauthorized Certificates | Development/on-premises escape hatch for self-signed TLS certificates             |
 
 The node logs in through `POST /users/login` and uses the JWT bearer token returned in the response headers. The API documentation notes a default token lifetime of 15 minutes.
+
+## Dynamic UI options
+
+The nodes load Matrix42 configuration directly from the REST API:
+
+- Templates from `GET /dc`
+- Allowed folders from `GET /dc/{templateCode}`
+- Attributes from `GET /dc/{templateCode}`
+- File-capable attributes from attributes where `file` is true
+- Static values from the selected template and attribute
+
+Template, folder, and attribute fields use n8n resource locators. Choose values from the list when credentials are available, or switch to `By Code` to enter customer-specific codes manually.
 
 ## Operations
 
@@ -120,6 +135,31 @@ Use the file `location` returned by an external-reference attribute for download
 | Echo          | `GET /echo`     |
 | Echo With JWT | `GET /echo/jwt` |
 
+## Matrix42 Pro AI Tool
+
+Use `Matrix42 Pro AI Tool` with n8n's Tools AI Agent when an agent should look up Matrix42 data. The tool is intentionally read-only:
+
+- Search Data Cards
+- Get Data Card
+- Get Template
+- Get Attribute
+
+Every execution returns a compact shape:
+
+```json
+{
+	"toolSummary": "Found 1 Matrix42 Pro data card.",
+	"records": [],
+	"meta": {
+		"operation": "searchDataCards",
+		"count": 0,
+		"readOnly": true
+	}
+}
+```
+
+Do not give AI agents direct create, update, delete, or upload access through the AI tool. For write actions, build a normal workflow with `Matrix42 Pro`, show the proposed change to a human, and only continue to the mutation step after approval.
+
 ## Trigger
 
 `Matrix42 Pro Trigger` polls the latest data cards for a template and emits cards whose IDs have not been seen by that workflow node before.
@@ -145,12 +185,21 @@ $support_group$ = 'IT Support' AND $status$ <> '07 - Closed'
 
 Use `Template > Get` to inspect valid attribute codes for your environment.
 
+## Example workflows
+
+Example workflows live in `examples/`:
+
+- `ai-ticket-search-assistant.workflow.json`: Chat-triggered Tools Agent using `Matrix42 Pro AI Tool` for read-only incident searches.
+- `human-reviewed-ticket-update.workflow.json`: Approval-gated update pattern using the normal `Matrix42 Pro` node for writes.
+
 ## Development
 
 ```bash
 corepack pnpm install
 corepack pnpm build
 corepack pnpm lint
+corepack pnpm test
+corepack pnpm check
 corepack pnpm lint:fix
 corepack pnpm dev
 ```
@@ -160,7 +209,18 @@ The project follows the current n8n community-node package shape:
 - `eslint.config.mjs` delegates to `@n8n/node-cli/eslint`
 - `package.json` contains `n8n.credentials`, `n8n.nodes`, and `n8n.strict`
 - node codex files provide categories and documentation links
-- `prepublishOnly` runs build and lint before npm publish
+- `prepublishOnly` runs build, lint, tests, production audit, and pack dry-run before npm publish
+
+CI runs:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm test
+pnpm build
+pnpm audit --prod
+pnpm pack --dry-run
+```
 
 ## Source API reference
 
