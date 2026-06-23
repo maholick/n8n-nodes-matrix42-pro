@@ -46,6 +46,14 @@ jobs:
             echo "package.json was not modified - skipping release"
           fi
 
+      - name: Install pnpm
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+          steps.check_package_json.outputs.package_json_changed == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.8.0
+
       - name: Setup Node.js
         if: |
           github.event_name == 'workflow_dispatch' ||
@@ -55,14 +63,6 @@ jobs:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
-
-      - name: Install pnpm
-        if: |
-          github.event_name == 'workflow_dispatch' ||
-          steps.check_package_json.outputs.package_json_changed == 'true'
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11.8.0
 
       - name: Install dependencies
         if: |
